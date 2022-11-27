@@ -24,6 +24,10 @@ const userSchema = mongoose.Schema(
     },
     {
         Timestamps: true,
-        
+
     }
 )
+
+export default mongoose.model("User", userSchema)
+
+//users
