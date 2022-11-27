@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-
+import AuthRoles from "../utils/authRoles"
 const userSchema = mongoose.Schema(
     {
         name: {
@@ -11,7 +11,19 @@ const userSchema = mongoose.Schema(
             type: String,
             required: [true, "Email is required"],
             maxLength:[8, "Email must be atleast 8 Character"],
-            select: false
-        }
+            select: false,
+        },
+        role: {
+            type: String,
+            enum: Object.values(AuthRoles),
+            default: AuthRoles.USER,
+        },
+        forgotPasswordToken: String,
+        forgotPasswordExpiry: String,
+
+    },
+    {
+        Timestamps: true,
+        
     }
 )
