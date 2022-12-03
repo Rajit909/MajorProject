@@ -38,7 +38,7 @@ const userSchema = mongoose.Schema(
     //Challenge 1 - encrypt password - hooks
 
     userSchema.pre("save", async function(next){
-        if(!this.modified("password")) return next();
+        if(!this.isModified("password")) return next();
         this.password = await bcrypt.hash(this.password, 10)
         next();
     });
@@ -48,7 +48,6 @@ const userSchema = mongoose.Schema(
         //compare password
         comparePassword: async function(enteredPassword){
             return await bcrypt.compare(enteredPassword, this.password)
-
         },
 
         //genrate jwt token
@@ -62,10 +61,29 @@ const userSchema = mongoose.Schema(
                 {
                     expiresIn: config.JWT_EXPIRY
                 },
-
-                
             )
         },
+
+        generateForgotPasswordToken: function(){
+            const forgotToken = crypto.randomBytes(20).toString('hex')
+
+            // step 1 - save to DB
+            this.forgotPasswordToken = crypto
+            .createHash("sha256")
+            .update(forgotToken)
+            .digest("hex")
+
+            this.forgotPasswordExpiry = Date.now() + 20 * 60 * 1000
+            //step -2 return values to user
+            
+            return forgotToken
+
+        },
+
+        
+
+
+
     }
 
     
