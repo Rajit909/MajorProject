@@ -1,92 +1,88 @@
-import mongoose from "mongoose"
-import AuthRoles from "../utils/authRoles"
-import JWT from "jsonwebtoken"
+import mongoose from "mongoose";
+import AuthRoles from '../utils/authRoles'
 import bcrypt from "bcryptjs"
-import crypto from "crypto" 
+import JWT from "jsonwebtoken"
+import crypto from "crypto"
 import config from "../config/index"
+
 
 const userSchema = mongoose.Schema(
     {
         name: {
             type: String,
             required: [true, "Name is required"],
-            maxLength:[50, "Name must be less then 50"],
+            maxLength: [50, "Name must be less than 50"]
         },
         email: {
             type: String,
             required: [true, "Email is required"],
-            maxLength:[8, "Email must be atleast 8 Character"],
-            select: false,
+            unique: true
+        },
+        password: {
+            type: String,
+            required: [true, "password is required"],
+            minLength: [8, "password must be at least 8 characters"],
+            select: false
         },
         role: {
             type: String,
             enum: Object.values(AuthRoles),
-            default: AuthRoles.USER,
+            default: AuthRoles.USER
         },
         forgotPasswordToken: String,
-        forgotPasswordExpiry: String,
-
+        forgotPasswordExpiry: Date,
     },
     {
-        Timestamps: true,
-    },
-
+        timestamps: true
+    }
 );
 
+// challenge 1 - encrypt password - hooks
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next();
+    this.password = await bcrypt.hash(this.password, 10)
+    next()
+})
 
+// add more featuers directly to your schema
+userSchema.methods = {
+    //compare password
+    comparePassword: async function (enteredPassword) {
+        return await bcrypt.compare(enteredPassword, this.password)
+    },
 
-    //Challenge 1 - encrypt password - hooks
+    //generate JWT TOKEN
+    getJwtToken: function () {
+        return JWT.sign(
+            {
+                _id: this._id,
+                role: this.role
+            },
+            config.JWT_SECRET,
+            {
+                expiresIn: config.JWT_EXPIRY
+            }
+        )
+    },
 
-    userSchema.pre("save", async function(next){
-        if(!this.isModified("password")) return next();
-        this.password = await bcrypt.hash(this.password, 10)
-        next();
-    });
+    generateForgotPasswordToken: function(){
+        const forgotToken = crypto.randomBytes(20).toString('hex');
 
-    //add more features
-    userSchema.methods = {
-        //compare password
-        comparePassword: async function(enteredPassword){
-            return await bcrypt.compare(enteredPassword, this.password)
-        },
+        //step 1 - save to DB
+        this.forgotPasswordToken = crypto
+        .createHash("sha256")
+        .update(forgotToken)
+        .digest("hex")
 
-        //genrate jwt token
-        getJwtToken: function(){
-            return JWT.sign(
-                {
-                    _id: this._id,
-                    role: this.role,
-                },
-                config.JWT_SECRET,
-                {
-                    expiresIn: config.JWT_EXPIRY
-                },
-            )
-        },
+        this.forgotPasswordExpiry = Date.now() + 20 * 60 * 1000
+        //step 2 - return values to user
 
-        generateForgotPasswordToken: function(){
-            const forgotToken = crypto.randomBytes(20).toString('hex')
-
-            // step 1 - save to DB
-            this.forgotPasswordToken = crypto
-            .createHash("sha256")
-            .update(forgotToken)
-            .digest("hex")
-
-            this.forgotPasswordExpiry = Date.now() + 20 * 60 * 1000
-            //step -2 return values to user
-            
-            return forgotToken
-
-        },
-
-        
-
-
+        return forgotToken
 
     }
+}
 
-    
+
+
 export default mongoose.model("User", userSchema)
 
-//users
