@@ -83,12 +83,14 @@ export const deleteCollection = asyncHandler(async (req, res) => {
         throw new CustomError("Collection not found,400")
     }
 
+
+    collectionToDelete.remove()
     // send response to frontend
 
     res.status(200).json({
         success: true,
         message: "Collection deleted successfully",
-        collectionToDelete
+        // collectionToDelete
     })
 
 })
