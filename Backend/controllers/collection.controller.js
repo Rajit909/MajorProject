@@ -34,7 +34,6 @@ export const createCollection = asyncHandler(async (req, res) => {
 })
 
 
-
 export const updateCollection = asyncHandler(async (req, res) => {
     // existing value to be updates
     const {id: collectionId} = req.params
@@ -94,8 +93,6 @@ export const deleteCollection = asyncHandler(async (req, res) => {
     })
 
 })
-
-
 
 
 export const getAllCollection = asyncHandler(async (req, res) => {
