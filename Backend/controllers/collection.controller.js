@@ -70,3 +70,25 @@ export const updateCollection = asyncHandler(async (req, res) => {
         })
 
 })
+
+
+export const deleteCollection = asyncHandler(async (req, res) => {
+    const {id: collectionId} = req.params
+
+    const collectionToDelete =await Collection.findByIdAndDelete(
+        collectionId
+    )
+
+    if (!collectionToDelete) {
+        throw new CustomError("Collection not found,400")
+    }
+
+    // send response to frontend
+
+    res.status(200).json({
+        success: true,
+        message: "Collection deleted successfully",
+        collectionToDelete
+    })
+
+})
