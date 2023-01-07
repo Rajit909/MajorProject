@@ -8,7 +8,13 @@ import { Mongoose } from 'mongoose'
 import config from '../config/index'
 
 
-
+/******************************************************
+ * @upload image
+ * @route http://localhost:5000/api/collection
+ * @description User signUp Controller for creating new user
+ * @parameters name, email, password
+ * @returns User Object
+ ******************************************************/
 
 
 
@@ -82,5 +88,42 @@ export const addProduct = asyncHandler(async (req, res) =>{
                 message: error.message || "Something went wrong"
             })
         }
+    })
+})
+
+/******************************************************
+ * @Create_collection
+ * @route http://localhost:5000/api/collection
+ * @description User signUp Controller for creating new user
+ * @parameters name, email, password
+ * @returns User Object
+ ******************************************************/
+
+export const getAllProducts = asyncHandler( async(req,res)=>{
+    const products = await Product.find({})
+
+    if (!products) {
+        throw new CustomError("No products was found",404)
+    }
+
+    res.status(200).json({
+        success:true,
+        products
+    })
+})
+
+
+export const getProductById = asyncHandler( async(req,res)=>{
+    const {id: productId} = req.params
+    
+    const product = await Product.findById(productId)
+
+    if (!product) {
+        throw new CustomError("No product was found",404)
+    }
+
+    res.status(200).json({
+        success:true,
+        product
     })
 })
