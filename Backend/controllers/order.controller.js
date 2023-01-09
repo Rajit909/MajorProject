@@ -17,7 +17,6 @@ import razorpay from "../config/razorpay.config.js"
 export const genrateRazorpayOrderId = asyncHandler( async(req,res) =>{
     // Get product and coupen from frontend 
 
-
     // verify product price from backend
 
     // make DB query to get all products and info
