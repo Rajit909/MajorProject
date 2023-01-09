@@ -6,7 +6,6 @@
  * @returns Coupon Object with success message "Coupon Created SuccessFully"
  *********************************************************/
 
-
 /**********************************************************
  * @DEACTIVATE_COUPON
  * @route https://localhost:5000/api/coupon/deactive/:couponId
